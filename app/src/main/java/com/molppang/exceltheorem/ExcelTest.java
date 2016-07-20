@@ -1,7 +1,5 @@
 package com.molppang.exceltheorem;
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.io.File;
@@ -18,17 +16,39 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
-public class MainActivity extends AppCompatActivity {
-    private int[][] values = new int[17][];
-    private ArrayList<String[]> strings = new ArrayList<String[]>();
+/**
+ * Created by park on 2016-07-20.
+ */
+public class ExcelTest {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    ArrayList<String[]> strings = new ArrayList<>();
+    String fileName = "z";
 
+    public static void main(String[] args) {
+        try {
+            new ExcelTest();
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    public ExcelTest() throws IOException, Exception {
         copyExcelDataToDatabase();
 
+
+     /*   File file = new File("C:\\Users\\park\\Desktop\\rr.xls");
+        WritableWorkbook workbook = Workbook.createWorkbook(file);
+        WritableSheet sheet = workbook.createSheet("Sheet", 0);
+
+        int count = 0;
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++, count++) {
+                sheet.addCell(new Label(i, j, String.format("%d", count)));
+            }
+        }
+        workbook.write();
+        workbook.close();*/
     }
 
     private void copyExcelDataToDatabase() {
@@ -36,17 +56,12 @@ public class MainActivity extends AppCompatActivity {
         Workbook workbook = null;
         Sheet sheet = null;
 
-
-        InputStream is = null;
-        try {
-            is = getBaseContext().getResources().getAssets().open("r.xls");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println("시작");
+        File readFile = new File("C:\\Users\\park\\Desktop\\jamo\\" + fileName + ".xls");
 
 
         try {
-            workbook = workbook.getWorkbook(is);
+            workbook = workbook.getWorkbook(readFile);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (BiffException e) {
@@ -59,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (sheet != null) {
 
-                int nMaxColumn = 2;
+                int nMaxColumn = 4;
                 int nRowStartIndex = 1;
                 int nRowEndIndex = sheet.getColumn(nMaxColumn - 1).length - 1;
                 int nColumnStartIndex = 0;
@@ -74,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                         i = 0;
                         ints = new String[25];
                     }
-                    int j = 7;
+                    int j = 13;
 
 
                     for (int nColumn = nColumnStartIndex + 1; nColumn <= nColumnEndIndex; nColumn++) {
@@ -82,35 +97,35 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
                         if (j == nColumn) {
-                            Log.i("String", "nColumn : " + nColumn + " nRow : " + nRow + " data : " + sheet.getCell(nColumn, nRow).getContents());
 
                             ints[i++] = sheet.getCell(nColumn, nRow).getContents();
-                            Log.i("String", "ints " + (i - 1) + " : " + ints[i - 1]);
                             j++;
-                            if (j == 12) {
+                            if (j == 18) {
                                 break;
                             }
                         }
 
                     }
-                    strings.add(ints);
+                    if (nRow % 6 == 0 || nRow ==1) {
+                        strings.add(ints);
+                    }
                 }
 
-                for (String s : strings.get(0)) {
-                    Log.i("StringData", "" + s);
-                }
-
-                File file = new File("file:///android_asset/rr.xls");
+                File file = new File("C:\\Users\\park\\Desktop\\complete\\" + fileName + ".xls");
                 WritableWorkbook writableWorkbook = null;
                 WritableSheet writableSheet = null;
                 try {
                     writableWorkbook = workbook.createWorkbook(file);
                     writableSheet = writableWorkbook.createSheet("Sheet", 0);
 
-                    for (int nRow = 0; nRow <= strings.size(); nRow++) {
+                    for (int nRow = 0; nRow < strings.size(); nRow++) {
+                        System.out.println("nRow : " + nRow + " strings.size() : " + strings.size());
 
-                        for (int nColumn = 0; nColumn <= strings.get(nRow).length; nColumn++) {
-                            writableSheet.addCell(new Label(nRow, nColumn, strings.get(nRow)[nColumn]));
+                        writableSheet.addCell(new Label(0, nRow, strings.get(nRow)[14]));
+
+                        for (int nColumn = 0; nColumn < strings.get(nRow).length; nColumn++) {
+                            System.out.println("nRow : " + nRow + " nColumn : " + nColumn + " strings.size() : " + strings.size());
+                            writableSheet.addCell(new Label(nColumn+1, nRow, strings.get(nRow)[nColumn]));
                         }
 
                     }
@@ -123,19 +138,15 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 } catch (WriteException e) {
                     e.printStackTrace();
+                } catch (NullPointerException e) {
+                    System.out.println("Error : " + e.toString());
+                } catch (Exception e) {
+                    System.out.println("Error : " + e.toString());
                 }
-
-
-            } else {
-            }
-        } else {
-            if (workbook != null) {
                 workbook.close();
             }
-
-
         }
-
-
     }
+
+
 }
